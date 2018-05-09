@@ -1,7 +1,7 @@
-diff -Naur ossec-hids-2.6-orig/install.sh ossec-hids-2.6/install.sh
---- ossec-hids-2.6-orig/install.sh	2011-07-11 15:36:58.000000000 -0400
-+++ ossec-hids-2.6/install.sh	2012-07-09 09:58:57.970692818 -0400
-@@ -119,14 +119,14 @@
+diff -Naur ossec-hids-2.7-orig/install.sh ossec-hids-2.7/install.sh
+--- ossec-hids-2.7-orig/install.sh      2012-11-08 21:24:55.000000000 -0500
++++ ossec-hids-2.7/install.sh   2018-05-04 08:55:37.783638524 -0400
+@@ -121,15 +121,14 @@
      # Generate the /etc/ossec-init.conf
      VERSION_FILE="./src/VERSION"
      VERSION=`cat ${VERSION_FILE}`
@@ -12,7 +12,8 @@ diff -Naur ossec-hids-2.6-orig/install.sh ossec-hids-2.6/install.sh
 -    echo "TYPE=\"${INSTYPE}\"" >> ${OSSEC_INIT}
 -    chmod 600 ${OSSEC_INIT}
 -    cp -pr ${OSSEC_INIT} ${INSTALLDIR}${OSSEC_INIT}
--    chmod 644 ${INSTALLDIR}${OSSEC_INIT}
+-    chmod 640 ${INSTALLDIR}${OSSEC_INIT}
+-
 +    echo chmod 700 ${OSSEC_INIT} > /dev/null 2>&1
 +    echo "DIRECTORY=\"${INSTALLDIR}\"" > ${INSTALLDIR}${OSSEC_INIT}
 +    echo "VERSION=\"${VERSION}\"" >> ${INSTALLDIR}${OSSEC_INIT}
@@ -21,42 +22,23 @@ diff -Naur ossec-hids-2.6-orig/install.sh ossec-hids-2.6/install.sh
 +    echo chmod 600 ${OSSEC_INIT}
 +    echo cp -pr ${OSSEC_INIT} ${INSTALLDIR}${OSSEC_INIT}
 +    echo chmod 644 ${INSTALLDIR}${OSSEC_INIT}
- 
- 
+
      # If update_rules is set, we need to tweak
-@@ -926,11 +926,6 @@
+     # ossec.conf to read the new signatures.
+@@ -972,10 +971,6 @@
          catError "0x1-location";
      fi
- 
+
 -    # Must be root
 -    if [ ! "X$ME" = "Xroot" ]; then
 -        catError "0x2-beroot";
 -    fi
--
+
      # Checking dependencies
      checkDependencies
- 
-diff -Naur ossec-hids-2.6-orig/src/InstallAgent.sh ossec-hids-2.6/src/InstallAgent.sh
---- ossec-hids-2.6-orig/src/InstallAgent.sh	2011-07-11 15:36:58.000000000 -0400
-+++ ossec-hids-2.6/src/InstallAgent.sh	2012-07-09 09:56:12.061870552 -0400
-@@ -80,7 +80,7 @@
- else
-     grep "^${USER}" /etc/passwd > /dev/null 2>&1
-     if [ ! $? = 0 ]; then
--	/usr/sbin/groupadd ${GROUP}
-+	echo /usr/sbin/groupadd ${GROUP}
- 
-     # We first check if /sbin/nologin is present. If it is not,
-     # we look for bin/false. If none of them is present, we
-@@ -93,7 +93,7 @@
-             OSMYSHELL="/bin/false"
-         fi
-     fi        
--	/usr/sbin/useradd -d ${DIR} -s ${OSMYSHELL} -g ${GROUP} ${USER}
-+	echo /usr/sbin/useradd -d ${DIR} -s ${OSMYSHELL} -g ${GROUP} ${USER}
-     fi
- fi
- 
+diff -Naur ossec-hids-2.7-orig/src/InstallAgent.sh ossec-hids-2.7/src/InstallAgent.sh
+--- ossec-hids-2.7-orig/src/InstallAgent.sh	2012-11-08 21:24:55.000000000 -0500
++++ ossec-hids-2.7/src/InstallAgent.sh	2018-05-04 06:40:12.047989494 -0400
 @@ -105,31 +105,31 @@
  done
  
@@ -92,7 +74,7 @@ diff -Naur ossec-hids-2.6-orig/src/InstallAgent.sh ossec-hids-2.6/src/InstallAge
 +
 +echo chown -R ${USER}:${GROUP} ${DIR}/queue/diff
 +echo chmod -R 750 ${DIR}/queue/diff
-+echo chmod 740 ${DIR}/queue/diff/* "> /dev/null 2>&1"
++echo chmod 740 ${DIR}/queue/diff/* > /dev/null 2>&1
  
  
  
@@ -124,8 +106,8 @@ diff -Naur ossec-hids-2.6-orig/src/InstallAgent.sh ossec-hids-2.6/src/InstallAge
 -chmod 550 ${DIR}/agentless/*
 -chmod 700 ${DIR}/.ssh
 +echo chown root:${GROUP} ${DIR}/etc/internal_options.conf
-+echo chown root:${GROUP} ${DIR}/etc/local_internal_options.conf "> /dev/null 2>&1"
-+echo chown root:${GROUP} ${DIR}/etc/client.keys "> /dev/null 2>&1"
++echo chown root:${GROUP} ${DIR}/etc/local_internal_options.conf > /dev/null 2>&1
++echo chown root:${GROUP} ${DIR}/etc/client.keys > /dev/null 2>&1
 +echo chown root:${GROUP} ${DIR}/agentless/*
 +echo chown ${USER}:${GROUP} ${DIR}/.ssh
 +echo chown -R root:${GROUP} ${DIR}/etc/shared
@@ -147,7 +129,16 @@ diff -Naur ossec-hids-2.6-orig/src/InstallAgent.sh ossec-hids-2.6/src/InstallAge
  
  
  # Moving the binary files
-@@ -201,11 +201,11 @@
+@@ -197,18 +197,18 @@
+ cp -pr ./init/ossec-client.sh ${DIR}/bin/ossec-control
+ cp -pr ../bin/manage_agents ${DIR}/bin/
+ cp -pr ../contrib/util.sh ${DIR}/bin/
+-chown root:${GROUP} ${DIR}/bin/util.sh
+-chmod +x ${DIR}/bin/util.sh
++echo chown root:${GROUP} ${DIR}/bin/util.sh
++echo chmod +x ${DIR}/bin/util.sh
+ 
+ # Copying active response modules
  sh ./init/fw-check.sh execute > /dev/null
  cp -pr ../active-response/*.sh ${DIR}/active-response/bin/
  cp -pr ../active-response/firewalls/*.sh ${DIR}/active-response/bin/
@@ -163,7 +154,7 @@ diff -Naur ossec-hids-2.6-orig/src/InstallAgent.sh ossec-hids-2.6/src/InstallAge
  
  
  # Moving the config file
-@@ -221,8 +221,8 @@
+@@ -224,8 +224,8 @@
  else    
      cp -pr ../etc/ossec-agent.conf ${DIR}/etc/ossec.conf
  fi
@@ -174,3 +165,4 @@ diff -Naur ossec-hids-2.6-orig/src/InstallAgent.sh ossec-hids-2.6/src/InstallAge
  
  
  
+

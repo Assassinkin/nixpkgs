@@ -1,12 +1,12 @@
 { stdenv, fetchurl, which }:
 
 stdenv.mkDerivation {
-  name = "ossec-client-2.6";
+  name = "ossec-client-2.7";
 
   src = fetchurl {
-    url = http://www.ossec.net/files/ossec-hids-2.6.tar.gz;
+    url = https://github.com/ossec/ossec-hids/releases/download/v2.7/ossec-hids-2.7.tar.gz;
 
-    sha256 = "0k1b59wdv9h50gbyy88qw3cnpdm8hv0nrl0znm92h9a11i5b39ip";
+    sha256 = "0jbjfjfzwyga5d167d16s1zshs1sz9mr0g2fy6j8r2h6fiylmb7q";
   };
 
   buildInputs = [ which ];
@@ -20,7 +20,6 @@ stdenv.mkDerivation {
 
 agent
 $out
-no
 127.0.0.1
 yes
 yes
@@ -37,4 +36,3 @@ yes
     platforms = stdenv.lib.platforms.linux;
   };
 }
-
