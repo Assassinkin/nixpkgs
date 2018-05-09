@@ -1,21 +1,30 @@
 { stdenv, fetchurl, which }:
 
-stdenv.mkDerivation {
-  name = "ossec-client-2.7";
+let
+  version = "2.7";
 
   src = fetchurl {
-    url = https://github.com/ossec/ossec-hids/releases/download/v2.7/ossec-hids-2.7.tar.gz;
+    url = "https://github.com/ossec/ossec-hids/releases/download/v${version}/ossec-hids-${version}.tar.gz";
 
     sha256 = "0jbjfjfzwyga5d167d16s1zshs1sz9mr0g2fy6j8r2h6fiylmb7q";
   };
 
-  buildInputs = [ which ];
+in 
 
-  phases = [ "unpackPhase" "patchPhase" "buildPhase" ];
+{
 
-  patches = [ ./no-root.patch ];
+  agent = stdenv.mkDerivation {
+    name = "ossec-client-${version}";
+  
+    inherit src;
 
-  buildPhase = ''
+    buildInputs = [ which ];
+
+    phases = [ "unpackPhase" "patchPhase" "buildPhase" ];
+
+    patches = [ ./no-root.patch ];
+
+    buildPhase = ''
     echo "en
 
 agent
@@ -27,12 +36,13 @@ yes
 
 
 "   | ./install.sh
-  '';
+    '';
 
-  meta = {
-    description = "Open soruce host-based instrusion detection system";
-    homepage = http://www.ossec.net;
-    license = stdenv.lib.licenses.gpl2;
-    platforms = stdenv.lib.platforms.linux;
+    meta = {
+      description = "Open soruce host-based instrusion detection system";
+      homepage = http://www.ossec.net;
+      license = stdenv.lib.licenses.gpl2;
+      platforms = stdenv.lib.platforms.linux;
+    };
   };
 }
