@@ -478,6 +478,11 @@
     github = "asppsa";
     name = "Alastair Pharo";
   };
+  psyanticy = {
+    email = "iuns@outlook.fr";
+    github = "Assassinkin";
+    name = "Psyanticy";
+  };
   astsmtl = {
     email = "astsmtl@yandex.ru";
     github = "astsmtl";

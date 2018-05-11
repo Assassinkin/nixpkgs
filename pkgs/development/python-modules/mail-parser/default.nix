@@ -15,5 +15,6 @@ buildPythonPackage rec {
     description = "A mail parser for python 2 and 3";
     homepage = https://github.com/SpamScope/mail-parser;
     license = licenses.asl20;
+    maintainers = with maintainers; [ psyanticy ];
   };
 }
