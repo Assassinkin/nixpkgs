@@ -6701,7 +6701,7 @@ in {
     };
   };
 
-  ipaddress = if (pythonAtLeast "3.3") then null else buildPythonPackage rec {
+  ipaddress = buildPythonPackage rec {
     name = "ipaddress-1.0.18";
 
     src = pkgs.fetchurl {

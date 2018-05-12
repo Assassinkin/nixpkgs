@@ -1,4 +1,4 @@
-{ stdenv, pkgs, buildPythonPackage, fetchPypi, ipaddress, six, simplejson }:
+{ stdenv, pkgs, buildPythonPackage, glibcLocales, fetchPypi, ipaddress, six, simplejson }:
 
 buildPythonPackage rec {
   pname = "mail-parser";
@@ -9,7 +9,13 @@ buildPythonPackage rec {
     sha256 = "0w8hwcld67j6hqzjycbbqk6pvsjpg0a5si6fzzdhzdh7h55y6gd9";
   };
 
+  LC_ALL = "en_US.utf-8";
+
+  nativeBuildInputs = [ glibcLocales ];
   propagatedBuildInputs = [ ipaddress six simplejson ];
+
+  # No tests in the archive downloaded using fetchPypi
+  doCheck = false;
 
   meta = with stdenv.lib; {
     description = "A mail parser for python 2 and 3";

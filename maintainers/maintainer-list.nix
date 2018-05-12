@@ -478,11 +478,6 @@
     github = "asppsa";
     name = "Alastair Pharo";
   };
-  psyanticy = {
-    email = "iuns@outlook.fr";
-    github = "Assassinkin";
-    name = "Psyanticy";
-  };
   astsmtl = {
     email = "astsmtl@yandex.ru";
     github = "astsmtl";
@@ -3025,6 +3020,11 @@
   pstn = {
     email = "philipp@xndr.de";
     name = "Philipp Steinpaß";
+  };
+  psyanticy = {
+    email = "iuns@outlook.fr";
+    github = "Assassinkin";
+    name = "Psyanticy";
   };
   puffnfresh = {
     email = "brian@brianmckenna.org";
