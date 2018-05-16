@@ -1,6 +1,6 @@
 diff -Naur ossec-hids-2.7-orig/install.sh ossec-hids-2.7/install.sh
---- ossec-hids-2.7-orig/install.sh      2012-11-08 21:24:55.000000000 -0500
-+++ ossec-hids-2.7/install.sh   2018-05-04 08:55:37.783638524 -0400
+--- ossec-hids-2.7-orig/install.sh	2012-11-08 21:24:55.000000000 -0500
++++ ossec-hids-2.7/install.sh	2018-05-16 06:54:52.443214161 -0400
 @@ -121,15 +121,14 @@
      # Generate the /etc/ossec-init.conf
      VERSION_FILE="./src/VERSION"
@@ -22,23 +22,141 @@ diff -Naur ossec-hids-2.7-orig/install.sh ossec-hids-2.7/install.sh
 +    echo chmod 600 ${OSSEC_INIT}
 +    echo cp -pr ${OSSEC_INIT} ${INSTALLDIR}${OSSEC_INIT}
 +    echo chmod 644 ${INSTALLDIR}${OSSEC_INIT}
-
+ 
      # If update_rules is set, we need to tweak
      # ossec.conf to read the new signatures.
 @@ -972,10 +971,6 @@
          catError "0x1-location";
      fi
-
+ 
 -    # Must be root
 -    if [ ! "X$ME" = "Xroot" ]; then
 -        catError "0x2-beroot";
 -    fi
-
+ 
      # Checking dependencies
      checkDependencies
+diff -Naur ossec-hids-2.7-orig/src/init/ossec-client.sh ossec-hids-2.7/src/init/ossec-client.sh
+--- ossec-hids-2.7-orig/src/init/ossec-client.sh	2012-11-08 21:24:55.000000000 -0500
++++ ossec-hids-2.7/src/init/ossec-client.sh	2018-05-16 12:02:01.231907541 -0400
+@@ -3,7 +3,6 @@
+ #                      or stopping ossec-hids
+ # Author: Daniel B. Cid <daniel.cid@gmail.com>
+ 
+-
+ LOCAL=`dirname $0`;
+ cd ${LOCAL}
+ PWD=`pwd`
+@@ -17,7 +16,7 @@
+ 
+ 
+ ## Locking for the start/stop
+-LOCK="${DIR}/var/start-script-lock"
++LOCK="/var/ossec/start-script-lock"
+ LOCK_PID="${LOCK}/pid"
+ 
+ 
+@@ -32,11 +31,11 @@
+ checkpid()
+ {
+     for i in ${DAEMONS}; do
+-        for j in `cat ${DIR}/var/run/${i}*.pid 2>/dev/null`; do
++        for j in `cat /var/run/${i}*.pid 2>/dev/null`; do
+             ps -p $j |grep ossec >/dev/null 2>&1
+             if [ ! $? = 0 ]; then
+-                echo "Deleting PID file '${DIR}/var/run/${i}-${j}.pid' not used..."
+-                rm ${DIR}/var/run/${i}-${j}.pid
++                echo "Deleting PID file '/var/run/${i}-${j}.pid' not used..."
++                rm /var/run/${i}-${j}.pid
+             fi    
+         done    
+     done    
+@@ -138,13 +137,21 @@
+     for i in ${SDAEMONS}; do
+         pstatus ${i};
+         if [ $? = 0 ]; then
+-            ${DIR}/bin/${i};
+-            if [ $? != 0 ]; then
+-                unlock;
+-                exit 1;
+-            fi 
+-
+-            echo "Started ${i}..."            
++            if [ -z $conf_file ]; then
++               ${DIR}/bin/${i};
++               if [ $? != 0 ]; then
++                   unlock;
++                   exit 1;
++               fi 
++            else
++               ${DIR}/bin/${i} -c $conf_file;
++               if [ $? != 0 ]; then
++                   unlock;
++                   exit 1;
++               fi
++            fi
++            echo "Started ${i}..."
++                        
+         else
+             echo "${i} already running..."                
+         fi    
+@@ -168,13 +175,13 @@
+         return 0;
+     fi
+         
+-    ls ${DIR}/var/run/${pfile}*.pid > /dev/null 2>&1
++    ls /var/run/${pfile}*.pid > /dev/null 2>&1
+     if [ $? = 0 ]; then
+-        for j in `cat ${DIR}/var/run/${pfile}*.pid 2>/dev/null`; do
++        for j in `cat /var/run/${pfile}*.pid 2>/dev/null`; do
+             ps -p $j |grep ossec >/dev/null 2>&1
+             if [ ! $? = 0 ]; then
+                 echo "${pfile}: Process $j not used by ossec, removing .."
+-                rm -f ${DIR}/var/run/${pfile}-$j.pid
++                rm -f /var/run/${pfile}-$j.pid
+                 continue;
+             fi
+                 
+@@ -199,12 +206,12 @@
+         if [ $? = 1 ]; then
+             echo "Killing ${i} .. ";
+             
+-            kill `cat ${DIR}/var/run/${i}*.pid`;
++            kill `cat /var/run/${i}*.pid`;
+         else
+             echo "${i} not running .."; 
+         fi
+         
+-        rm -f ${DIR}/var/run/${i}*.pid
++        rm -f /var/run/${i}*.pid
+         
+      done    
+     
+@@ -215,7 +222,20 @@
+ 
+ ### MAIN HERE ###
+ 
+-case "$1" in
++while getopts "f:c:h" o; do
++        case "${o}" in
++                f)
++                        command=${OPTARG}
++                        echo "hhhh";;
++                c)
++                        conf_file=${OPTARG}
++                        echo "dddd";;
++                h)
++                        echo -e 'Usage: -c $conf_file_path'
++                        exit 0;;
++        esac
++done
++case "$command" in
+   start)
+     testconfig
+ 	start
 diff -Naur ossec-hids-2.7-orig/src/InstallAgent.sh ossec-hids-2.7/src/InstallAgent.sh
 --- ossec-hids-2.7-orig/src/InstallAgent.sh	2012-11-08 21:24:55.000000000 -0500
-+++ ossec-hids-2.7/src/InstallAgent.sh	2018-05-04 06:40:12.047989494 -0400
++++ ossec-hids-2.7/src/InstallAgent.sh	2018-05-16 06:54:56.867315005 -0400
 @@ -105,31 +105,31 @@
  done
  
