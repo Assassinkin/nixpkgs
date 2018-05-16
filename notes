@@ -1,0 +1,10 @@
+latest notes 
+we need to fix a bug that do not allow a binary to use -c : 
+https://github.com/ossec/ossec-hids/issues/207
+
+fix manage-agent thing with the key thing:
+https://github.com/ossec/ossec-hids/issues/1414
+
+still need to do some cleanup in the ossec-controll script.
+
+change the location of the queues folder.
