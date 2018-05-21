@@ -1,12 +1,12 @@
-{ stdenv, fetchurl, lib, qtbase, qtmultimedia, qtscript, qtsensors, qtwebkit, openssl, xkeyboard_config, makeWrapper }:
+{ stdenv, fetchurl, lib, qt59, qtbase, qtmultimedia, qtscript, qtsensors, qtwebkit, openssl, xkeyboard_config, makeWrapper }:
 
 stdenv.mkDerivation rec {
   name = "p4v-${version}";
-  version = "2017.3.1601999";
+  version = "2018.2.1661700";
 
   src = fetchurl {
-    url = "https://cdist2.perforce.com/perforce/r17.3/bin.linux26x86_64/p4v.tgz";
-    sha256 = "f317607f1bc8877db01ff020b8b0857c2d0f8600474d152749264aea0be66b21";
+    url = "http://www.perforce.com/downloads/perforce/r18.2/bin.linux26x86_64/p4v.tgz";
+    sha256 = "18jxk9yf3480c0lgkpm53rkbblmjcv9qd21xilmp0jb9g2plmhfl";
   };
 
   dontBuild = true;
@@ -26,15 +26,15 @@ stdenv.mkDerivation rec {
     mkdir $out
     cp -r bin $out
     mkdir -p $out/lib/p4v
-    cp -r lib/p4v/P4VResources $out/lib/p4v
-
+    cp -r lib/P4VResources $out/lib/p4v
+    cp -r lib/plugins $out/lib/p4v
     for f in $out/bin/*.bin ; do
       patchelf --set-interpreter "$(cat $NIX_CC/nix-support/dynamic-linker)" $f
 
       wrapProgram $f \
         --suffix LD_LIBRARY_PATH : ${ldLibraryPath} \
         --suffix QT_XKB_CONFIG_ROOT : ${xkeyboard_config}/share/X11/xkb \
-        --suffix QT_PLUGIN_PATH : ${qtbase.bin}/${qtbase.qtPluginPrefix}
+        --suffix QT_PLUGIN_PATH : ${qt59.qtbase.bin}/${qt59.qtbase.qtPluginPrefix}
     done
   '';
 
