@@ -253,6 +253,8 @@ in {
 
   globus-sdk = callPackage ../development/python-modules/globus-sdk { };
 
+  gpgmailencrypt = callPackage ../development/python-modules/gpgmailencrypt { };
+
   gssapi = callPackage ../development/python-modules/gssapi { };
 
   h5py = callPackage ../development/python-modules/h5py {
