@@ -1,4 +1,4 @@
-{ stdenv, buildPythonPackage, fetchPypi, isPy3k, python_magic, pypdf2, passlib, beautifulsoup4, icalendar, lxml, bcrypt, pdfkit, html5lib, requests, dns, dkimpy }:
+{ stdenv, buildPythonPackage, python, fetchPypi, gnupg, openssl, isPy3k, python_magic, pypdf2, passlib, beautifulsoup4, coreutils, icalendar, lxml, bcrypt, pdfkit, html5lib, requests, dns, dkimpy }:
 
 buildPythonPackage rec {
   pname = "gpgmailencrypt";
@@ -11,10 +11,12 @@ buildPythonPackage rec {
 
   disabled = !isPy3k;
 
-  propagatedBuildInputs = [ python_magic pypdf2 passlib beautifulsoup4 icalendar lxml bcrypt pdfkit  html5lib requests ];
-
-  checkInputs = [ dns dkimpy ];
+  propagatedBuildInputs = [ python_magic gnupg openssl pypdf2 passlib beautifulsoup4 icalendar lxml bcrypt pdfkit  html5lib requests dns dkimpy];
+  checkinputs = [ coreutils ];
   # Fails when trying to import a local module!!
+  checkPhase = ''
+    ${python.interpreter} tests/gmeunittests.py -vbc
+  '';
   #doCheck = false;
 
   meta = with stdenv.lib; {
