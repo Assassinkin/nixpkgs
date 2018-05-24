@@ -323,6 +323,8 @@ in {
 
   pyamf = callPackage ../development/python-modules/pyamf { };
 
+  pyarabic = callPackage ../development/python-modules/pyarabic { };
+
   pyarrow = callPackage ../development/python-modules/pyarrow {
     inherit (pkgs) arrow-cpp cmake pkgconfig;
   };
