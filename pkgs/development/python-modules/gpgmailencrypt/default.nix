@@ -1,4 +1,5 @@
-{ stdenv, buildPythonPackage, python, fetchPypi, gnupg, openssl, isPy3k, python_magic, pypdf2, passlib, beautifulsoup4, coreutils, icalendar, lxml, bcrypt, pdfkit, html5lib, requests, dns, dkimpy }:
+{ stdenv, buildPythonPackage, fetchPypi, isPy3k, python, coreutils, gnupg, openssl, pdftk, p7zip, wkhtmltopdf
+, pypdf2, beautifulsoup4, icalendar, python_magic, lxml, requests, passlib, bcrypt, html5lib }:
 
 buildPythonPackage rec {
   pname = "gpgmailencrypt";
@@ -11,13 +12,15 @@ buildPythonPackage rec {
 
   disabled = !isPy3k;
 
-  propagatedBuildInputs = [ python_magic gnupg openssl pypdf2 passlib beautifulsoup4 icalendar lxml bcrypt pdfkit  html5lib requests dns dkimpy];
-  checkinputs = [ coreutils ];
+  makeWrapperArgs = ["--prefix" "PATH" ":" "${stdenv.lib.makeBinPath [ coreutils openssl gnupg pdftk p7zip wkhtmltopdf ]}" ];
+  # html5lib  dns dkimpy html5lib
+  propagatedBuildInputs = [ pypdf2 beautifulsoup4 icalendar python_magic lxml requests passlib bcrypt html5lib ];
+  #checkinputs = [ coreutils ];
   # Fails when trying to import a local module!!
   checkPhase = ''
     ${python.interpreter} tests/gmeunittests.py -vbc
   '';
-  #doCheck = false;
+  doCheck = false;
 
   meta = with stdenv.lib; {
     description = "an e-mail encryption, virus- and spam- checking module, gateway and daemon";
@@ -27,4 +30,3 @@ buildPythonPackage rec {
   };
 
 }
-
