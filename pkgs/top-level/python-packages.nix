@@ -253,6 +253,8 @@ in {
 
   diff-match-patch = callPackage ../development/python-modules/diff-match-patch { };
 
+  fuzzy = callPackage ../development/python-modules/fuzzy { };
+
   globus-sdk = callPackage ../development/python-modules/globus-sdk { };
 
   goocalendar = callPackage ../development/python-modules/goocalendar { };
